@@ -1,4 +1,4 @@
-# Minimarket Backend - Backend II Sumativa S6
+# Minimarket Backend - Backend II Sumativa S7
 
 Proyecto backend desarrollado con **Java** y **Spring Boot** para la gestión de un minimarket.  
 Incluye módulos de productos, categorías, inventario, ventas, detalle de ventas, usuarios, seguridad y documentación de API.
