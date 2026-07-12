@@ -161,6 +161,22 @@ Este proyecto usa **springdoc-openapi** para generar documentación automática 
 - Swagger UI: `http://localhost:9090/swagger-ui.html`
 - Alternativa: `http://localhost:9090/swagger-ui/index.html`
 - OpenAPI JSON: `http://localhost:9090/v3/api-docs`
+- Contrato versionado: `docs/openapi/openapi.json`
+
+### Evidencias verificables
+
+- Swagger UI local: `http://localhost:9090/swagger-ui.html`
+- OpenAPI en ejecución: `http://localhost:9090/v3/api-docs`
+- OpenAPI versionado en repositorio: `/docs/openapi/openapi.json`
+
+### Regenerar contrato OpenAPI (`openapi.json`)
+
+1. Levantar la aplicación:
+   - Linux/macOS: `mvn spring-boot:run`
+   - Windows: `.\mvnw.cmd spring-boot:run`
+2. Exportar el contrato:
+   - Linux/macOS: `curl -s http://localhost:9090/v3/api-docs -o docs/openapi/openapi.json`
+   - Windows PowerShell: `Invoke-WebRequest http://localhost:9090/v3/api-docs -OutFile docs/openapi/openapi.json`
 
 ### Qué puedes validar en Swagger
 

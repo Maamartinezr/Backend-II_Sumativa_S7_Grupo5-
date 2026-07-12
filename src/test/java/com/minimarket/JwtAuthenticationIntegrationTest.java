@@ -121,8 +121,23 @@ class JwtAuthenticationIntegrationTest {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.paths['/api/auth/login']").exists())
+                .andExpect(jsonPath("$.info.title").value("Minimarket API"))
+                .andExpect(jsonPath("$.info.contact.name").value("Maamartinezr"))
+                .andExpect(jsonPath("$.servers[0].url").value("http://localhost:9090"))
                 .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.scheme").value("bearer"))
                 .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.bearerFormat").value("JWT"));
+    }
+
+    @Test
+    void openApiIncluyeSeguridadYRespuestasEstandarizadasEnProductoYCarrito() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/productos'].post.responses['401']").exists())
+                .andExpect(jsonPath("$.paths['/api/productos/{id}'].delete.responses['204'].description").value("Producto eliminado correctamente"))
+                .andExpect(jsonPath("$.paths['/api/productos/{id}'].delete.responses['204'].content['application/json']").doesNotExist())
+                .andExpect(jsonPath("$.paths['/api/productos'].post.security[0].bearerAuth").exists())
+                .andExpect(jsonPath("$.paths['/api/carrito'].post.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/api/carrito'].post.security[0].bearerAuth").exists());
     }
 
     private Usuario crearUsuario(String username, String password, String rolNombre) {
