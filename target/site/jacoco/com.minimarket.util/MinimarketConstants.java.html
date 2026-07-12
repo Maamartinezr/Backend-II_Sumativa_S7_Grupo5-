@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MinimarketConstants.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.util</a> &gt; <span class="el_source">MinimarketConstants.java</span></div><h1>MinimarketConstants.java</h1><pre class="source lang-java linenums">package com.minimarket.util;
+
+import java.util.Set;
+
+public final class MinimarketConstants {
+
+    private MinimarketConstants() {
+    }
+
+    public static final String ROL_ADMIN = &quot;ADMIN&quot;;
+    public static final String ROL_CAJERO = &quot;CAJERO&quot;;
+    public static final String ROL_CLIENTE = &quot;CLIENTE&quot;;
+    public static final String ROL_EMPLEADO = &quot;EMPLEADO&quot;;
+    public static final String ROL_VENDEDOR = &quot;VENDEDOR&quot;;
+
+<span class="fc" id="L16">    public static final Set&lt;String&gt; ROLES_REGISTRO_VENTA = Set.of(ROL_CAJERO, ROL_EMPLEADO, ROL_VENDEDOR);</span>
+<span class="fc" id="L17">    public static final Set&lt;String&gt; ROLES_GESTION_INVENTARIO = Set.of(ROL_ADMIN, ROL_CAJERO, ROL_EMPLEADO, ROL_VENDEDOR);</span>
+
+    public static final String TIPO_MOVIMIENTO_ENTRADA = &quot;ENTRADA&quot;;
+    public static final String TIPO_MOVIMIENTO_SALIDA = &quot;SALIDA&quot;;
+
+    public static final String ERROR_CARRITO_OBLIGATORIO = &quot;El carrito no puede ser nulo&quot;;
+    public static final String ERROR_CARRITO_USUARIO_OBLIGATORIO = &quot;El carrito debe estar asociado a un usuario valido&quot;;
+    public static final String ERROR_CARRITO_PRODUCTO_OBLIGATORIO = &quot;El carrito debe estar asociado a un producto valido&quot;;
+    public static final String ERROR_CARRITO_CANTIDAD_POSITIVA = &quot;La cantidad del carrito debe ser mayor a cero&quot;;
+    public static final String ERROR_CARRITO_STOCK_OBLIGATORIO = &quot;El producto del carrito debe tener stock informado&quot;;
+    public static final String ERROR_CARRITO_STOCK_INSUFICIENTE = &quot;No existe stock suficiente para agregar el producto al carrito&quot;;
+
+    public static final String ERROR_VENTA_USUARIO_INVALIDO = &quot;La venta debe estar vinculada a un usuario valido&quot;;
+    public static final String ERROR_VENTA_USUARIO_INEXISTENTE = &quot;El usuario asociado a la venta no existe&quot;;
+    public static final String ERROR_VENTA_USUARIO_INCOMPLETO = &quot;El usuario debe tener nombre, apellido, email y direccion&quot;;
+    public static final String ERROR_VENTA_ROL_NO_AUTORIZADO = &quot;El usuario no tiene un rol autorizado para registrar ventas&quot;;
+    public static final String ERROR_VENTA_STOCK_INSUFICIENTE = &quot;No existe stock suficiente para registrar la venta&quot;;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

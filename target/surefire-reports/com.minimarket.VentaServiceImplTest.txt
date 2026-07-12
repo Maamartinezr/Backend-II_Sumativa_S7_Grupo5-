@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.minimarket.VentaServiceImplTest
+-------------------------------------------------------------------------------
+Tests run: 24, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.439 s -- in com.minimarket.VentaServiceImplTest

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarritoServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.service.impl</a> &gt; <span class="el_source">CarritoServiceImpl.java</span></div><h1>CarritoServiceImpl.java</h1><pre class="source lang-java linenums">package com.minimarket.service.impl;
+
+import com.minimarket.entity.Carrito;
+import com.minimarket.repository.CarritoRepository;
+import com.minimarket.service.CarritoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_CANTIDAD_POSITIVA;
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_OBLIGATORIO;
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_PRODUCTO_OBLIGATORIO;
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_STOCK_INSUFICIENTE;
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_STOCK_OBLIGATORIO;
+import static com.minimarket.util.MinimarketConstants.ERROR_CARRITO_USUARIO_OBLIGATORIO;
+
+@Service
+<span class="fc" id="L21">public class CarritoServiceImpl implements CarritoService {</span>
+
+    @Autowired
+    private CarritoRepository carritoRepository;
+
+    @Override
+    public List&lt;Carrito&gt; findAll() {
+<span class="nc" id="L28">        return carritoRepository.findAll();</span>
+    }
+
+    @Override
+    public Page&lt;Carrito&gt; findAll(Pageable pageable) {
+<span class="nc" id="L33">        return carritoRepository.findAll(pageable);</span>
+    }
+
+    @Override
+    public Carrito findById(Long id) {
+<span class="fc" id="L38">        return carritoRepository.findById(id).orElse(null);</span>
+    }
+
+    @Override
+    public Carrito save(Carrito carrito) {
+<span class="fc" id="L43">        validarCarrito(carrito);</span>
+<span class="fc" id="L44">        return carritoRepository.save(carrito);</span>
+    }
+
+    @Override
+    public void deleteById(Long id) {
+<span class="fc" id="L49">        carritoRepository.deleteById(id);</span>
+<span class="fc" id="L50">    }</span>
+
+    @Override
+    public List&lt;Carrito&gt; findByUsuarioId(Long usuarioId) {
+<span class="fc" id="L54">        return carritoRepository.findByUsuarioId(usuarioId);</span>
+    }
+
+    private void validarCarrito(Carrito carrito) {
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">        if (carrito == null) {</span>
+<span class="nc" id="L59">            throw new IllegalArgumentException(ERROR_CARRITO_OBLIGATORIO);</span>
+        }
+
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        if (!tieneUsuarioValido(carrito)) {</span>
+<span class="fc" id="L63">            throw new IllegalArgumentException(ERROR_CARRITO_USUARIO_OBLIGATORIO);</span>
+        }
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if (!tieneProductoValido(carrito)) {</span>
+<span class="fc" id="L67">            throw new IllegalArgumentException(ERROR_CARRITO_PRODUCTO_OBLIGATORIO);</span>
+        }
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (!cantidadSolicitadaValida(carrito)) {</span>
+<span class="fc" id="L71">            throw new IllegalArgumentException(ERROR_CARRITO_CANTIDAD_POSITIVA);</span>
+        }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (!stockInformado(carrito)) {</span>
+<span class="fc" id="L75">            throw new IllegalArgumentException(ERROR_CARRITO_STOCK_OBLIGATORIO);</span>
+        }
+
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (!tieneStockSuficiente(carrito)) {</span>
+<span class="fc" id="L79">            throw new IllegalArgumentException(ERROR_CARRITO_STOCK_INSUFICIENTE);</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    private boolean tieneUsuarioValido(Carrito carrito) {
+<span class="fc bfc" id="L84" title="All 4 branches covered.">        return carrito.getUsuario() != null &amp;&amp; carrito.getUsuario().getId() != null;</span>
+    }
+
+    private boolean tieneProductoValido(Carrito carrito) {
+<span class="fc bfc" id="L88" title="All 4 branches covered.">        return carrito.getProducto() != null &amp;&amp; carrito.getProducto().getId() != null;</span>
+    }
+
+    private boolean cantidadSolicitadaValida(Carrito carrito) {
+<span class="pc bpc" id="L92" title="1 of 4 branches missed.">        return carrito.getCantidad() != null &amp;&amp; carrito.getCantidad() &gt; 0;</span>
+    }
+
+    private boolean stockInformado(Carrito carrito) {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        return carrito.getProducto().getStock() != null;</span>
+    }
+
+    private boolean tieneStockSuficiente(Carrito carrito) {
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        return carrito.getProducto().getStock() &gt;= carrito.getCantidad();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
