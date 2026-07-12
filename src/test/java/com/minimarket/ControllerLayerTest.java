@@ -268,7 +268,7 @@ class ControllerLayerTest {
         mockMvc.perform(post("/api/inventario")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(crearInventario(null, "SALIDA"))))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.tipoMovimiento").value("ENTRADA"));
         mockMvc.perform(put("/api/inventario/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -333,7 +333,7 @@ class ControllerLayerTest {
         mockMvc.perform(post("/api/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usuario)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("usuario1@minimarket.cl"));
         mockMvc.perform(put("/api/usuarios/1")
                         .contentType(MediaType.APPLICATION_JSON)
