@@ -1,6 +1,10 @@
 package com.minimarket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minimarket.assembler.CarritoModelAssembler;
+import com.minimarket.assembler.InventarioModelAssembler;
+import com.minimarket.assembler.ProductoModelAssembler;
+import com.minimarket.assembler.UsuarioModelAssembler;
 import com.minimarket.controller.CarritoController;
 import com.minimarket.controller.CategoriaController;
 import com.minimarket.controller.DetalleVentaController;
@@ -25,6 +29,7 @@ import com.minimarket.service.InventarioService;
 import com.minimarket.service.ProductoService;
 import com.minimarket.service.UsuarioService;
 import com.minimarket.service.VentaService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,6 +39,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Date;
@@ -94,6 +101,38 @@ class ControllerLayerTest {
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @MockBean
+    private ProductoModelAssembler productoModelAssembler;
+
+    @MockBean
+    private CarritoModelAssembler carritoModelAssembler;
+
+    @MockBean
+    private InventarioModelAssembler inventarioModelAssembler;
+
+    @MockBean
+    private UsuarioModelAssembler usuarioModelAssembler;
+
+    @BeforeEach
+    void configurarAssemblers() {
+        when(productoModelAssembler.toModel(any(ProductoDTO.class)))
+                .thenAnswer(invocation -> EntityModel.of(invocation.getArgument(0),
+                        Link.of("http://localhost/api/productos/1").withSelfRel(),
+                        Link.of("http://localhost/api/productos").withRel("collection")));
+        when(carritoModelAssembler.toModel(any(CarritoDTO.class)))
+                .thenAnswer(invocation -> EntityModel.of(invocation.getArgument(0),
+                        Link.of("http://localhost/api/carrito/1").withSelfRel(),
+                        Link.of("http://localhost/api/carrito").withRel("collection")));
+        when(inventarioModelAssembler.toModel(any(Inventario.class)))
+                .thenAnswer(invocation -> EntityModel.of(invocation.getArgument(0),
+                        Link.of("http://localhost/api/inventario/1").withSelfRel(),
+                        Link.of("http://localhost/api/inventario").withRel("collection")));
+        when(usuarioModelAssembler.toModel(any(Usuario.class)))
+                .thenAnswer(invocation -> EntityModel.of(invocation.getArgument(0),
+                        Link.of("http://localhost/api/usuarios/1").withSelfRel(),
+                        Link.of("http://localhost/api/usuarios").withRel("collection")));
+    }
+
     @Test
     void listarProductosRetornaProductosDelServicio() throws Exception {
         when(productoService.findAll(any(Pageable.class)))
@@ -101,9 +140,10 @@ class ControllerLayerTest {
 
         mockMvc.perform(get("/api/productos?page=0&size=2"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(2)))
-                .andExpect(jsonPath("$.content[0].nombre").value("Arroz 1"))
-                .andExpect(jsonPath("$.totalElements").value(2));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._embedded.*[0].nombre").value("Arroz 1"))
+                .andExpect(jsonPath("$._embedded.*[1].nombre").value("Arroz 2"))
+                .andExpect(jsonPath("$._links.self.href").exists());
 
         verify(productoService).findAll(any(Pageable.class));
     }
@@ -115,7 +155,8 @@ class ControllerLayerTest {
         mockMvc.perform(get("/api/productos/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.categoriaId").value(1));
+                .andExpect(jsonPath("$.categoriaId").value(1))
+                .andExpect(jsonPath("$._links.self.href").exists());
 
         verify(productoService).findById(1L);
     }
@@ -215,10 +256,13 @@ class ControllerLayerTest {
 
         mockMvc.perform(get("/api/inventario"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._embedded.*[0].tipoMovimiento").value("ENTRADA"))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/inventario/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tipoMovimiento").value("ENTRADA"));
+                .andExpect(jsonPath("$.tipoMovimiento").value("ENTRADA"))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/inventario/99"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(post("/api/inventario")
@@ -277,10 +321,13 @@ class ControllerLayerTest {
 
         mockMvc.perform(get("/api/usuarios"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._embedded.*[0].username").value("usuario1"))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/usuarios/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("usuario1"));
+                .andExpect(jsonPath("$.username").value("usuario1"))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/usuarios/99"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(post("/api/usuarios")
@@ -317,12 +364,13 @@ class ControllerLayerTest {
 
         mockMvc.perform(get("/api/carrito?page=0&size=1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content", hasSize(1)))
-                .andExpect(jsonPath("$.content[0].productoId").value(1))
-                .andExpect(jsonPath("$.totalElements").value(1));
+                .andExpect(jsonPath("$._embedded").exists())
+                .andExpect(jsonPath("$._embedded.*[0].productoId").value(1))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/carrito/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.cantidad").value(2));
+                .andExpect(jsonPath("$.cantidad").value(2))
+                .andExpect(jsonPath("$._links.self.href").exists());
         mockMvc.perform(get("/api/carrito/99"))
                 .andExpect(status().isNotFound());
         mockMvc.perform(post("/api/carrito")

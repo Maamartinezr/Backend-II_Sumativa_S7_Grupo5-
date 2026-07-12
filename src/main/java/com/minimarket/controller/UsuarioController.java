@@ -1,13 +1,19 @@
 package com.minimarket.controller;
 
+import com.minimarket.assembler.UsuarioModelAssembler;
 import com.minimarket.entity.Usuario;
 import com.minimarket.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -16,15 +22,23 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private UsuarioModelAssembler usuarioModelAssembler;
+
     @GetMapping
-    public List<Usuario> listarUsuarios() {
-        return usuarioService.findAll();
+    public CollectionModel<EntityModel<Usuario>> listarUsuarios() {
+        List<EntityModel<Usuario>> usuarios = usuarioService.findAll().stream()
+                .map(usuarioModelAssembler::toModel)
+                .toList();
+        return CollectionModel.of(usuarios,
+                linkTo(methodOn(UsuarioController.class).listarUsuarios()).withSelfRel());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Usuario>> obtenerUsuarioPorId(@PathVariable Long id) {
         Optional<Usuario> usuario = usuarioService.findById(id);
-        return usuario.map(ResponseEntity::ok) // Si el usuario existe, devuelve 200 OK con el usuario
+        return usuario.map(usuarioModelAssembler::toModel)
+                .map(ResponseEntity::ok) // Si el usuario existe, devuelve 200 OK con el usuario
                 .orElseGet(() -> ResponseEntity.notFound().build()); // Si no, devuelve 404
     }
 

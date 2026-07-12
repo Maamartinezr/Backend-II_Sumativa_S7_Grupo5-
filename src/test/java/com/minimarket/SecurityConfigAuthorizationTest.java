@@ -1,6 +1,8 @@
 package com.minimarket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.minimarket.assembler.InventarioModelAssembler;
+import com.minimarket.assembler.ProductoModelAssembler;
 import com.minimarket.controller.InventarioController;
 import com.minimarket.controller.ProductoController;
 import com.minimarket.controller.VentaController;
@@ -55,6 +57,12 @@ class SecurityConfigAuthorizationTest {
 
     @MockBean
     private VentaService ventaService;
+
+    @MockBean
+    private ProductoModelAssembler productoModelAssembler;
+
+    @MockBean
+    private InventarioModelAssembler inventarioModelAssembler;
 
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
