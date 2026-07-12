@@ -140,6 +140,18 @@ class JwtAuthenticationIntegrationTest {
                 .andExpect(jsonPath("$.paths['/api/carrito'].post.security[0].bearerAuth").exists());
     }
 
+    @Test
+    void openApiIncluyeSeguridadYRespuestasEstandarizadasEnUsuarioEInventario() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/usuarios'].post.responses['201'].description").value("Usuario creado correctamente"))
+                .andExpect(jsonPath("$.paths['/api/usuarios/{id}'].delete.responses['204'].description").value("Usuario eliminado correctamente"))
+                .andExpect(jsonPath("$.paths['/api/usuarios'].post.security[0].bearerAuth").exists())
+                .andExpect(jsonPath("$.paths['/api/inventario'].post.responses['201'].description").value("Movimiento registrado correctamente"))
+                .andExpect(jsonPath("$.paths['/api/inventario/{id}'].put.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/api/inventario'].post.security[0].bearerAuth").exists());
+    }
+
     private Usuario crearUsuario(String username, String password, String rolNombre) {
         Rol rol = rolRepository.findByNombre(rolNombre)
                 .orElseGet(() -> rolRepository.save(new Rol(rolNombre)));

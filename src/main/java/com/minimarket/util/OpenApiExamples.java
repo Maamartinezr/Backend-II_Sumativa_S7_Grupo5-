@@ -82,6 +82,98 @@ public final class OpenApiExamples {
             }
             """;
 
+    public static final String USUARIO_REQUEST = """
+            {
+              "username": "usuario1",
+              "nombre": "Maria",
+              "apellido": "Martinez",
+              "email": "usuario1@minimarket.cl",
+              "direccion": "Av. Principal 123",
+              "password": "Password123*"
+            }
+            """;
+
+    public static final String USUARIO_RESPONSE = """
+            {
+              "id": 1,
+              "username": "usuario1",
+              "nombre": "Maria",
+              "apellido": "Martinez",
+              "email": "usuario1@minimarket.cl",
+              "direccion": "Av. Principal 123",
+              "password": "Password123*"
+            }
+            """;
+
+    public static final String USUARIO_COLLECTION = """
+            {
+              "_embedded": {
+                "usuarioList": [
+                  {
+                    "id": 1,
+                    "username": "usuario1",
+                    "nombre": "Maria",
+                    "apellido": "Martinez",
+                    "email": "usuario1@minimarket.cl",
+                    "direccion": "Av. Principal 123",
+                    "password": "Password123*"
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "http://localhost:9090/api/usuarios"
+                }
+              }
+            }
+            """;
+
+    public static final String INVENTARIO_REQUEST = """
+            {
+              "producto": {
+                "id": 1
+              },
+              "cantidad": 5,
+              "tipoMovimiento": "ENTRADA",
+              "fechaMovimiento": "2026-07-06T04:00:00.000+00:00"
+            }
+            """;
+
+    public static final String INVENTARIO_RESPONSE = """
+            {
+              "id": 1,
+              "producto": {
+                "id": 1
+              },
+              "cantidad": 5,
+              "tipoMovimiento": "ENTRADA",
+              "fechaMovimiento": "2026-07-06T04:00:00.000+00:00"
+            }
+            """;
+
+    public static final String INVENTARIO_COLLECTION = """
+            {
+              "_embedded": {
+                "inventarioList": [
+                  {
+                    "id": 1,
+                    "producto": {
+                      "id": 1
+                    },
+                    "cantidad": 5,
+                    "tipoMovimiento": "ENTRADA",
+                    "fechaMovimiento": "2026-07-06T04:00:00.000+00:00"
+                  }
+                ]
+              },
+              "_links": {
+                "self": {
+                  "href": "http://localhost:9090/api/inventario"
+                }
+              }
+            }
+            """;
+
     public static final String ERROR_400 = """
             {
               "timestamp": "2026-07-06T04:12:49.271Z",
@@ -129,6 +221,26 @@ public final class OpenApiExamples {
               "error": "Not Found",
               "message": "Carrito no encontrado con id: 99",
               "path": "/api/carrito/99"
+            }
+            """;
+
+    public static final String ERROR_404_USUARIO = """
+            {
+              "timestamp": "2026-07-06T04:12:49.271Z",
+              "status": 404,
+              "error": "Not Found",
+              "message": "Usuario no encontrado con id: 99",
+              "path": "/api/usuarios/99"
+            }
+            """;
+
+    public static final String ERROR_404_INVENTARIO = """
+            {
+              "timestamp": "2026-07-06T04:12:49.271Z",
+              "status": 404,
+              "error": "Not Found",
+              "message": "Movimiento de inventario no encontrado con id: 99",
+              "path": "/api/inventario/99"
             }
             """;
 
