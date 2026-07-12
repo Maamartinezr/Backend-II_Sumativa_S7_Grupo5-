@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.minimarket.ControllerLayerTest
 -------------------------------------------------------------------------------
-Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.970 s -- in com.minimarket.ControllerLayerTest
+Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.881 s -- in com.minimarket.ControllerLayerTest

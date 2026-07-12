@@ -63,4 +63,6 @@
 /home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/service/impl/RolServiceImpl.java
 /home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/service/impl/UsuarioServiceImpl.java
 /home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/service/impl/VentaServiceImpl.java
+/home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/util/ApiErrorMessages.java
 /home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/util/MinimarketConstants.java
+/home/runner/work/Backend-II_Sumativa_S7_Grupo5-/Backend-II_Sumativa_S7_Grupo5-/src/main/java/com/minimarket/util/OpenApiExamples.java

@@ -18,8 +18,8 @@ minimarket,com.minimarket.entity,Inventario,2,70,1,9,1,22,1,17,0,13
 minimarket,com.minimarket.entity,Rol,12,64,0,10,6,20,3,13,3,8
 minimarket,com.minimarket.entity,DetalleVenta,2,70,1,9,1,22,1,17,0,13
 minimarket,com.minimarket.entity,Carrito,2,63,1,9,1,19,1,15,0,11
-minimarket,com.minimarket.config,OpenApiConfig,0,7,0,0,0,2,0,2,0,2
-minimarket,com.minimarket.exception,ApiExceptionHandler,15,72,0,2,2,15,2,5,2,4
+minimarket,com.minimarket.config,OpenApiConfig,0,62,0,0,0,21,0,2,0,2
+minimarket,com.minimarket.exception,ApiExceptionHandler,22,72,0,2,3,15,3,5,3,4
 minimarket,com.minimarket.exception,ResourceNotFoundException,0,4,0,0,0,2,0,1,0,1
 minimarket,com.minimarket.security.service,CustomUserDetailsService,0,23,0,0,0,4,0,3,0,3
 minimarket,com.minimarket.service.impl,VentaServiceImpl,18,240,15,45,3,47,17,30,2,15
