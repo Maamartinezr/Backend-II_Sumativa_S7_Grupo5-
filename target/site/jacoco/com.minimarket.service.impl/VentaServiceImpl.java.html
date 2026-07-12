@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VentaServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.service.impl</a> &gt; <span class="el_source">VentaServiceImpl.java</span></div><h1>VentaServiceImpl.java</h1><pre class="source lang-java linenums">package com.minimarket.service.impl;
+
+import com.minimarket.entity.DetalleVenta;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Usuario;
+import com.minimarket.entity.Venta;
+import com.minimarket.repository.ProductoRepository;
+import com.minimarket.repository.UsuarioRepository;
+import com.minimarket.repository.VentaRepository;
+import com.minimarket.service.VentaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.minimarket.util.MinimarketConstants.ERROR_VENTA_ROL_NO_AUTORIZADO;
+import static com.minimarket.util.MinimarketConstants.ERROR_VENTA_STOCK_INSUFICIENTE;
+import static com.minimarket.util.MinimarketConstants.ERROR_VENTA_USUARIO_INCOMPLETO;
+import static com.minimarket.util.MinimarketConstants.ERROR_VENTA_USUARIO_INEXISTENTE;
+import static com.minimarket.util.MinimarketConstants.ERROR_VENTA_USUARIO_INVALIDO;
+import static com.minimarket.util.MinimarketConstants.ROLES_REGISTRO_VENTA;
+
+@Service
+<span class="fc" id="L24">public class VentaServiceImpl implements VentaService {</span>
+
+    @Autowired
+    private VentaRepository ventaRepository;
+
+    @Autowired
+    private ProductoRepository productoRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Override
+    public List&lt;Venta&gt; findAll() {
+<span class="fc" id="L37">        return ventaRepository.findAll();</span>
+    }
+
+    @Override
+    public Venta findById(Long id) {
+<span class="fc" id="L42">        return ventaRepository.findById(id).orElse(null);</span>
+    }
+
+    @Override
+    public Venta save(Venta venta) {
+<span class="nc" id="L47">        return ventaRepository.save(venta);</span>
+    }
+
+    @Override
+    public List&lt;Venta&gt; findByUsuarioId(Long usuarioId) {
+<span class="fc" id="L52">        return ventaRepository.findByUsuarioId(usuarioId);</span>
+    }
+
+    @Override
+    public Venta registrarVenta(Venta venta) {
+<span class="fc" id="L57">        validarVenta(venta);</span>
+<span class="fc" id="L58">        venta.setTotal(calcularTotal(venta));</span>
+<span class="fc" id="L59">        return ventaRepository.save(venta);</span>
+    }
+
+    @Override
+    public boolean tieneStockSuficiente(Venta venta) {
+<span class="pc bpc" id="L64" title="1 of 6 branches missed.">        if (venta == null || venta.getDetalles() == null || venta.getDetalles().isEmpty()) {</span>
+<span class="fc" id="L65">            return false;</span>
+        }
+
+<span class="fc" id="L68">        return venta.getDetalles().stream().allMatch(detalle -&gt; {</span>
+<span class="fc" id="L69">            Producto producto = obtenerProducto(detalle);</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">            return producto != null</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                    &amp;&amp; detalle.getCantidad() != null</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">                    &amp;&amp; detalle.getCantidad() &gt; 0</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">                    &amp;&amp; producto.getStock() != null</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                    &amp;&amp; producto.getStock() &gt;= detalle.getCantidad();</span>
+        });
+    }
+
+    @Override
+    public double calcularTotal(Venta venta) {
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">        if (venta == null || venta.getDetalles() == null) {</span>
+<span class="fc" id="L81">            return 0.0;</span>
+        }
+
+<span class="fc" id="L84">        return venta.getDetalles().stream()</span>
+<span class="fc" id="L85">                .mapToDouble(detalle -&gt; {</span>
+<span class="fc" id="L86">                    Producto producto = obtenerProducto(detalle);</span>
+<span class="pc bpc" id="L87" title="2 of 6 branches missed.">                    if (producto == null || producto.getPrecio() == null || detalle.getCantidad() == null) {</span>
+<span class="fc" id="L88">                        return 0.0;</span>
+                    }
+<span class="fc" id="L90">                    return producto.getPrecio() * detalle.getCantidad();</span>
+                })
+<span class="fc" id="L92">                .sum();</span>
+    }
+
+    private void validarVenta(Venta venta) {
+<span class="pc bpc" id="L96" title="3 of 6 branches missed.">        if (venta == null || venta.getUsuario() == null || venta.getUsuario().getId() == null) {</span>
+<span class="nc" id="L97">            throw new IllegalArgumentException(ERROR_VENTA_USUARIO_INVALIDO);</span>
+        }
+
+<span class="fc" id="L100">        Usuario usuario = usuarioRepository.findById(venta.getUsuario().getId())</span>
+<span class="pc" id="L101">                .orElseThrow(() -&gt; new IllegalArgumentException(ERROR_VENTA_USUARIO_INEXISTENTE));</span>
+
+<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (!usuarioTieneDatosCompletos(usuario)) {</span>
+<span class="fc" id="L104">            throw new IllegalArgumentException(ERROR_VENTA_USUARIO_INCOMPLETO);</span>
+        }
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        if (!usuarioTieneRolPermitido(usuario)) {</span>
+<span class="fc" id="L108">            throw new IllegalArgumentException(ERROR_VENTA_ROL_NO_AUTORIZADO);</span>
+        }
+
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        if (!tieneStockSuficiente(venta)) {</span>
+<span class="fc" id="L112">            throw new IllegalArgumentException(ERROR_VENTA_STOCK_INSUFICIENTE);</span>
+        }
+<span class="fc" id="L114">    }</span>
+
+    private Producto obtenerProducto(DetalleVenta detalle) {
+<span class="pc bpc" id="L117" title="2 of 4 branches missed.">        if (detalle == null || detalle.getProducto() == null) {</span>
+<span class="nc" id="L118">            return null;</span>
+        }
+
+<span class="fc" id="L121">        Long productoId = detalle.getProducto().getId();</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (productoId == null) {</span>
+<span class="fc" id="L123">            return detalle.getProducto();</span>
+        }
+
+<span class="fc" id="L126">        return productoRepository.findById(productoId).orElse(detalle.getProducto());</span>
+    }
+
+    private boolean usuarioTieneDatosCompletos(Usuario usuario) {
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        return noEstaVacio(usuario.getNombre())</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">                &amp;&amp; noEstaVacio(usuario.getApellido())</span>
+<span class="fc bfc" id="L132" title="All 2 branches covered.">                &amp;&amp; noEstaVacio(usuario.getEmail())</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">                &amp;&amp; noEstaVacio(usuario.getDireccion());</span>
+    }
+
+    private boolean usuarioTieneRolPermitido(Usuario usuario) {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        return usuario.getRoles() != null</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                &amp;&amp; usuario.getRoles().stream().anyMatch(rol -&gt; ROLES_REGISTRO_VENTA.contains(rol.getNombre()));</span>
+    }
+
+    private boolean noEstaVacio(String valor) {
+<span class="pc bpc" id="L142" title="1 of 4 branches missed.">        return valor != null &amp;&amp; !valor.trim().isEmpty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApiExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.exception</a> &gt; <span class="el_source">ApiExceptionHandler.java</span></div><h1>ApiExceptionHandler.java</h1><pre class="source lang-java linenums">package com.minimarket.exception;
+
+import com.minimarket.dto.ErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@RestControllerAdvice
+<span class="fc" id="L17">public class ApiExceptionHandler {</span>
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ErrorResponseDTO&gt; handleValidation(MethodArgumentNotValidException ex,
+                                                             HttpServletRequest request) {
+<span class="fc" id="L22">        Map&lt;String, String&gt; validationErrors = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        for (FieldError error : ex.getBindingResult().getFieldErrors()) {</span>
+<span class="fc" id="L24">            validationErrors.put(error.getField(), error.getDefaultMessage());</span>
+<span class="fc" id="L25">        }</span>
+<span class="fc" id="L26">        return buildResponse(HttpStatus.BAD_REQUEST, &quot;La solicitud contiene datos invalidos&quot;, request, validationErrors);</span>
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponseDTO&gt; handleNotFound(ResourceNotFoundException ex,
+                                                           HttpServletRequest request) {
+<span class="fc" id="L32">        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);</span>
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;ErrorResponseDTO&gt; handleIllegalArgument(IllegalArgumentException ex,
+                                                                  HttpServletRequest request) {
+<span class="nc" id="L38">        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);</span>
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ErrorResponseDTO&gt; handleGeneric(Exception ex,
+                                                          HttpServletRequest request) {
+<span class="nc" id="L44">        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Ha ocurrido un error inesperado&quot;, request, null);</span>
+    }
+
+    private ResponseEntity&lt;ErrorResponseDTO&gt; buildResponse(HttpStatus status,
+                                                           String message,
+                                                           HttpServletRequest request,
+                                                           Map&lt;String, String&gt; validationErrors) {
+<span class="fc" id="L51">        ErrorResponseDTO response = new ErrorResponseDTO();</span>
+<span class="fc" id="L52">        response.setTimestamp(Instant.now());</span>
+<span class="fc" id="L53">        response.setStatus(status.value());</span>
+<span class="fc" id="L54">        response.setError(status.getReasonPhrase());</span>
+<span class="fc" id="L55">        response.setMessage(message);</span>
+<span class="fc" id="L56">        response.setPath(request.getRequestURI());</span>
+<span class="fc" id="L57">        response.setValidationErrors(validationErrors);</span>
+<span class="fc" id="L58">        return ResponseEntity.status(status).body(response);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

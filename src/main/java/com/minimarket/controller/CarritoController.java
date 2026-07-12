@@ -39,55 +39,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.minimarket.util.OpenApiExamples.CARRITO_PAGE;
+import static com.minimarket.util.OpenApiExamples.CARRITO_REQUEST;
+import static com.minimarket.util.OpenApiExamples.CARRITO_RESPONSE;
+import static com.minimarket.util.OpenApiExamples.ERROR_400;
+import static com.minimarket.util.OpenApiExamples.ERROR_401;
+import static com.minimarket.util.OpenApiExamples.ERROR_403;
+import static com.minimarket.util.OpenApiExamples.ERROR_404_CARRITO;
+import static com.minimarket.util.OpenApiExamples.ERROR_409;
+import static com.minimarket.util.OpenApiExamples.ERROR_500;
+
 @RestController
 @RequestMapping("/api/carrito")
 @Tag(name = "Carrito", description = "Operaciones para administrar el carrito de compras")
 @SecurityRequirement(name = "bearerAuth")
 public class CarritoController {
-
-    private static final String CARRITO_REQUEST_EXAMPLE = """
-            {
-              "usuarioId": 1,
-              "productoId": 1,
-              "cantidad": 2
-            }
-            """;
-    private static final String CARRITO_RESPONSE_EXAMPLE = """
-            {
-              "id": 1,
-              "usuarioId": 1,
-              "productoId": 1,
-              "cantidad": 2
-            }
-            """;
-    private static final String CARRITO_PAGE_EXAMPLE = """
-            {
-              "content": [
-                {
-                  "id": 1,
-                  "usuarioId": 1,
-                  "productoId": 1,
-                  "cantidad": 2
-                }
-              ],
-              "number": 0,
-              "size": 20,
-              "totalElements": 1,
-              "totalPages": 1,
-              "first": true,
-              "last": true,
-              "empty": false
-            }
-            """;
-    private static final String ERROR_EXAMPLE = """
-            {
-              "timestamp": "2026-07-06T04:12:49.271Z",
-              "status": 404,
-              "error": "Not Found",
-              "message": "Carrito no encontrado con id: 99",
-              "path": "/api/carrito/99"
-            }
-            """;
 
     @Autowired
     private CarritoService carritoService;
@@ -100,16 +66,29 @@ public class CarritoController {
 
     @Operation(
             summary = "Listar carrito",
-            description = "Obtiene un listado paginado de items registrados en el carrito."
+            description = "Obtiene un listado paginado de items registrados en el carrito. Requiere autenticacion JWT."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado paginado del carrito",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = CarritoPageResponse.class),
-                            examples = @ExampleObject(value = CARRITO_PAGE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Parametros de paginacion invalidos",
+                            examples = @ExampleObject(value = CARRITO_PAGE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping
     public ResponseEntity<PageResponse<CarritoDTO>> listarCarrito(@ParameterObject Pageable pageable) {
@@ -119,17 +98,29 @@ public class CarritoController {
 
     @Operation(
             summary = "Obtener item del carrito por id",
-            description = "Recupera un item del carrito a partir de su identificador."
+            description = "Recupera un item del carrito por su identificador. Requiere autenticacion JWT."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Item del carrito encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = CarritoDTO.class),
-                            examples = @ExampleObject(value = CARRITO_RESPONSE_EXAMPLE))),
+                            examples = @ExampleObject(value = CARRITO_RESPONSE))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Item del carrito no encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponseDTO.class),
-                            examples = @ExampleObject(value = ERROR_EXAMPLE)))
+                            examples = @ExampleObject(value = ERROR_404_CARRITO))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<CarritoDTO> obtenerCarritoPorId(
@@ -140,24 +131,43 @@ public class CarritoController {
 
     @Operation(
             summary = "Agregar producto al carrito",
-            description = "Registra un nuevo item de carrito vinculando usuario, producto y cantidad solicitada."
+            description = "Registra un nuevo item de carrito. Requiere autenticacion JWT.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Item del carrito creado correctamente",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = CarritoDTO.class),
-                            examples = @ExampleObject(value = CARRITO_RESPONSE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Datos del carrito invalidos",
+                            examples = @ExampleObject(value = CARRITO_RESPONSE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Usuario o producto no encontrados",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_404_CARRITO))),
+            @ApiResponse(responseCode = "409", description = "Conflicto de datos",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_409))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos del item de carrito a registrar",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = CarritoDTO.class),
-                    examples = @ExampleObject(value = CARRITO_REQUEST_EXAMPLE)))
+                    examples = @ExampleObject(value = CARRITO_REQUEST)))
     @PostMapping
     public ResponseEntity<CarritoDTO> agregarProductoAlCarrito(@Valid @RequestBody CarritoDTO carritoDto) {
         Usuario usuario = obtenerUsuario(carritoDto.getUsuarioId());
@@ -168,24 +178,43 @@ public class CarritoController {
 
     @Operation(
             summary = "Actualizar item del carrito",
-            description = "Actualiza un item existente del carrito."
+            description = "Actualiza un item existente del carrito. Requiere autenticacion JWT.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Item del carrito actualizado correctamente",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = CarritoDTO.class),
-                            examples = @ExampleObject(value = CARRITO_RESPONSE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Datos del carrito invalidos",
+                            examples = @ExampleObject(value = CARRITO_RESPONSE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Item, usuario o producto no encontrados",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_404_CARRITO))),
+            @ApiResponse(responseCode = "409", description = "Conflicto de datos",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_409))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos actualizados del item de carrito",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = CarritoDTO.class),
-                    examples = @ExampleObject(value = CARRITO_REQUEST_EXAMPLE)))
+                    examples = @ExampleObject(value = CARRITO_REQUEST)))
     @PutMapping("/{id}")
     public ResponseEntity<CarritoDTO> actualizarCarrito(
             @Parameter(in = ParameterIn.PATH, description = "Identificador unico del item del carrito", example = "1")
@@ -201,14 +230,27 @@ public class CarritoController {
 
     @Operation(
             summary = "Eliminar item del carrito",
-            description = "Elimina un item existente del carrito."
+            description = "Elimina un item existente del carrito. Requiere autenticacion JWT.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Item del carrito eliminado correctamente"),
+            @ApiResponse(responseCode = "204", description = "Item del carrito eliminado correctamente", content = @Content),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Item del carrito no encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponseDTO.class),
-                            examples = @ExampleObject(value = ERROR_EXAMPLE)))
+                            examples = @ExampleObject(value = ERROR_404_CARRITO))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProductoDelCarrito(

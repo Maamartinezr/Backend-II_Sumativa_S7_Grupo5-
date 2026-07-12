@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorResponseDTO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.dto</a> &gt; <span class="el_source">ErrorResponseDTO.java</span></div><h1>ErrorResponseDTO.java</h1><pre class="source lang-java linenums">package com.minimarket.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.time.Instant;
+import java.util.Map;
+
+@Schema(name = &quot;ErrorResponse&quot;)
+<span class="fc" id="L9">public class ErrorResponseDTO {</span>
+
+    @Schema(example = &quot;2026-07-06T04:12:49.271Z&quot;)
+    private Instant timestamp;
+
+    @Schema(example = &quot;400&quot;)
+    private int status;
+
+    @Schema(example = &quot;Bad Request&quot;)
+    private String error;
+
+    @Schema(example = &quot;La solicitud contiene datos invalidos&quot;)
+    private String message;
+
+    @Schema(example = &quot;/api/productos&quot;)
+    private String path;
+
+    private Map&lt;String, String&gt; validationErrors;
+
+    public Instant getTimestamp() {
+<span class="fc" id="L29">        return timestamp;</span>
+    }
+
+    public void setTimestamp(Instant timestamp) {
+<span class="fc" id="L33">        this.timestamp = timestamp;</span>
+<span class="fc" id="L34">    }</span>
+
+    public int getStatus() {
+<span class="fc" id="L37">        return status;</span>
+    }
+
+    public void setStatus(int status) {
+<span class="fc" id="L41">        this.status = status;</span>
+<span class="fc" id="L42">    }</span>
+
+    public String getError() {
+<span class="fc" id="L45">        return error;</span>
+    }
+
+    public void setError(String error) {
+<span class="fc" id="L49">        this.error = error;</span>
+<span class="fc" id="L50">    }</span>
+
+    public String getMessage() {
+<span class="fc" id="L53">        return message;</span>
+    }
+
+    public void setMessage(String message) {
+<span class="fc" id="L57">        this.message = message;</span>
+<span class="fc" id="L58">    }</span>
+
+    public String getPath() {
+<span class="fc" id="L61">        return path;</span>
+    }
+
+    public void setPath(String path) {
+<span class="fc" id="L65">        this.path = path;</span>
+<span class="fc" id="L66">    }</span>
+
+    public Map&lt;String, String&gt; getValidationErrors() {
+<span class="fc" id="L69">        return validationErrors;</span>
+    }
+
+    public void setValidationErrors(Map&lt;String, String&gt; validationErrors) {
+<span class="fc" id="L73">        this.validationErrors = validationErrors;</span>
+<span class="fc" id="L74">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

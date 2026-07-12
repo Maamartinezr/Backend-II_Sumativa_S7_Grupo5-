@@ -37,58 +37,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.minimarket.util.OpenApiExamples.ERROR_400;
+import static com.minimarket.util.OpenApiExamples.ERROR_401;
+import static com.minimarket.util.OpenApiExamples.ERROR_403;
+import static com.minimarket.util.OpenApiExamples.ERROR_404_PRODUCTO;
+import static com.minimarket.util.OpenApiExamples.ERROR_409;
+import static com.minimarket.util.OpenApiExamples.ERROR_500;
+import static com.minimarket.util.OpenApiExamples.PRODUCTO_PAGE;
+import static com.minimarket.util.OpenApiExamples.PRODUCTO_REQUEST;
+import static com.minimarket.util.OpenApiExamples.PRODUCTO_RESPONSE;
+
 @RestController
 @RequestMapping("/api/productos")
 @Tag(name = "Productos", description = "Operaciones para consultar, crear, actualizar y eliminar productos del minimarket")
 @SecurityRequirement(name = "bearerAuth")
 public class ProductoController {
-
-    private static final String PRODUCTO_REQUEST_EXAMPLE = """
-            {
-              "nombre": "Arroz integral",
-              "precio": 1500.0,
-              "stock": 20,
-              "categoriaId": 1
-            }
-            """;
-    private static final String PRODUCTO_RESPONSE_EXAMPLE = """
-            {
-              "id": 1,
-              "nombre": "Arroz integral",
-              "precio": 1500.0,
-              "stock": 20,
-              "categoriaId": 1
-            }
-            """;
-    private static final String PRODUCTO_PAGE_EXAMPLE = """
-            {
-              "content": [
-                {
-                  "id": 1,
-                  "nombre": "Arroz integral",
-                  "precio": 1500.0,
-                  "stock": 20,
-                  "categoriaId": 1
-                }
-              ],
-              "number": 0,
-              "size": 20,
-              "totalElements": 1,
-              "totalPages": 1,
-              "first": true,
-              "last": true,
-              "empty": false
-            }
-            """;
-    private static final String ERROR_EXAMPLE = """
-            {
-              "timestamp": "2026-07-06T04:12:49.271Z",
-              "status": 404,
-              "error": "Not Found",
-              "message": "Producto no encontrado con id: 99",
-              "path": "/api/productos/99"
-            }
-            """;
 
     @Autowired
     private ProductoService productoService;
@@ -98,16 +61,29 @@ public class ProductoController {
 
     @Operation(
             summary = "Listar productos",
-            description = "Obtiene una lista paginada de productos. Permite consultar inventario visible para clientes o equipos operativos."
+            description = "Obtiene una lista paginada de productos. Requiere autenticacion JWT."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado paginado de productos",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ProductoPageResponse.class),
-                            examples = @ExampleObject(value = PRODUCTO_PAGE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Parametros de paginacion invalidos",
+                            examples = @ExampleObject(value = PRODUCTO_PAGE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping
     public ResponseEntity<PageResponse<ProductoDTO>> listarProductos(@ParameterObject Pageable pageable) {
@@ -117,17 +93,29 @@ public class ProductoController {
 
     @Operation(
             summary = "Obtener producto por id",
-            description = "Recupera el detalle de un producto especifico mediante su identificador."
+            description = "Recupera el detalle de un producto por su identificador. Requiere autenticacion JWT."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Producto encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ProductoDTO.class),
-                            examples = @ExampleObject(value = PRODUCTO_RESPONSE_EXAMPLE))),
+                            examples = @ExampleObject(value = PRODUCTO_RESPONSE))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponseDTO.class),
-                            examples = @ExampleObject(value = ERROR_EXAMPLE)))
+                            examples = @ExampleObject(value = ERROR_404_PRODUCTO))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<ProductoDTO> obtenerProductoPorId(
@@ -138,24 +126,43 @@ public class ProductoController {
 
     @Operation(
             summary = "Crear producto",
-            description = "Registra un nuevo producto disponible para ventas e inventario."
+            description = "Registra un nuevo producto. Requiere rol ADMIN.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Producto creado correctamente",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ProductoDTO.class),
-                            examples = @ExampleObject(value = PRODUCTO_RESPONSE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Datos del producto invalidos",
+                            examples = @ExampleObject(value = PRODUCTO_RESPONSE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Categoria no encontrada",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_404_PRODUCTO))),
+            @ApiResponse(responseCode = "409", description = "Conflicto de datos",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_409))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos del producto a crear",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ProductoDTO.class),
-                    examples = @ExampleObject(value = PRODUCTO_REQUEST_EXAMPLE)))
+                    examples = @ExampleObject(value = PRODUCTO_REQUEST)))
     @PostMapping
     public ResponseEntity<ProductoDTO> guardarProducto(@Valid @RequestBody ProductoDTO productoDto) {
         Categoria categoria = obtenerCategoria(productoDto.getCategoriaId());
@@ -165,24 +172,43 @@ public class ProductoController {
 
     @Operation(
             summary = "Actualizar producto",
-            description = "Actualiza los datos principales de un producto existente."
+            description = "Actualiza un producto existente. Requiere rol ADMIN.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Producto actualizado correctamente",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ProductoDTO.class),
-                            examples = @ExampleObject(value = PRODUCTO_RESPONSE_EXAMPLE))),
-            @ApiResponse(responseCode = "400", description = "Datos del producto invalidos",
+                            examples = @ExampleObject(value = PRODUCTO_RESPONSE))),
+            @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_400))),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Producto o categoria no encontrados",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ErrorResponseDTO.class)))
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_404_PRODUCTO))),
+            @ApiResponse(responseCode = "409", description = "Conflicto de datos",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_409))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true, description = "Datos del producto a actualizar",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                     schema = @Schema(implementation = ProductoDTO.class),
-                    examples = @ExampleObject(value = PRODUCTO_REQUEST_EXAMPLE)))
+                    examples = @ExampleObject(value = PRODUCTO_REQUEST)))
     @PutMapping("/{id}")
     public ResponseEntity<ProductoDTO> actualizarProducto(
             @Parameter(in = ParameterIn.PATH, description = "Identificador unico del producto", example = "1")
@@ -197,14 +223,27 @@ public class ProductoController {
 
     @Operation(
             summary = "Eliminar producto",
-            description = "Elimina un producto existente del catalogo."
+            description = "Elimina un producto existente. Requiere rol ADMIN.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Producto eliminado correctamente"),
+            @ApiResponse(responseCode = "204", description = "Producto eliminado correctamente", content = @Content),
+            @ApiResponse(responseCode = "401", description = "No autenticado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_401))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_403))),
             @ApiResponse(responseCode = "404", description = "Producto no encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ErrorResponseDTO.class),
-                            examples = @ExampleObject(value = ERROR_EXAMPLE)))
+                            examples = @ExampleObject(value = ERROR_404_PRODUCTO))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ErrorResponseDTO.class),
+                            examples = @ExampleObject(value = ERROR_500)))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProducto(

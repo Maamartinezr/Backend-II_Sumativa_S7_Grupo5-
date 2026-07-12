@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Venta.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.entity</a> &gt; <span class="el_source">Venta.java</span></div><h1>Venta.java</h1><pre class="source lang-java linenums">package com.minimarket.entity;
+
+import jakarta.persistence.*;
+import java.util.Date;
+import java.util.List;
+
+@Entity
+<span class="fc" id="L8">public class Venta {</span>
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;usuario_id&quot;, nullable = false)
+    private Usuario usuario;
+
+    @Column(nullable = false)
+    private Date fecha;
+
+<span class="fc" id="L20">    @Column(nullable = false)</span>
+<span class="fc" id="L21">    private Double total = 0.0;</span>
+
+    @OneToMany(mappedBy = &quot;venta&quot;, cascade = CascadeType.ALL)
+    private List&lt;DetalleVenta&gt; detalles;
+
+    // Getters y Setters
+    public Long getId() {
+<span class="fc" id="L28">        return id;</span>
+    }
+
+    public void setId(Long id) {
+<span class="fc" id="L32">        this.id = id;</span>
+<span class="fc" id="L33">    }</span>
+
+    public Usuario getUsuario() {
+<span class="fc" id="L36">        return usuario;</span>
+    }
+
+    public void setUsuario(Usuario usuario) {
+<span class="fc" id="L40">        this.usuario = usuario;</span>
+<span class="fc" id="L41">    }</span>
+
+    public Date getFecha() {
+<span class="fc" id="L44">        return fecha;</span>
+    }
+
+    public void setFecha(Date fecha) {
+<span class="fc" id="L48">        this.fecha = fecha;</span>
+<span class="fc" id="L49">    }</span>
+
+    public Double getTotal() {
+<span class="fc" id="L52">        return total;</span>
+    }
+
+    public void setTotal(Double total) {
+<span class="fc" id="L56">        this.total = total;</span>
+<span class="fc" id="L57">    }</span>
+
+    public List&lt;DetalleVenta&gt; getDetalles() {
+<span class="fc" id="L60">        return detalles;</span>
+    }
+
+    public void setDetalles(List&lt;DetalleVenta&gt; detalles) {
+<span class="fc" id="L64">        this.detalles = detalles;</span>
+<span class="fc" id="L65">    }</span>
+    @Override
+    public boolean equals(Object o) {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        if (this == o) {</span>
+<span class="nc" id="L69">            return true;</span>
+        }
+<span class="fc bfc" id="L71" title="All 4 branches covered.">        if (o == null || getClass() != o.getClass()) {</span>
+<span class="fc" id="L72">            return false;</span>
+        }
+<span class="fc" id="L74">        Venta that = (Venta) o;</span>
+<span class="fc bfc" id="L75" title="All 4 branches covered.">        return id != null &amp;&amp; id.equals(that.id);</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="fc" id="L80">        return getClass().hashCode();</span>
+    }}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

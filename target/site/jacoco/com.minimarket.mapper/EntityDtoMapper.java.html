@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EntityDtoMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">minimarket</a> &gt; <a href="index.source.html" class="el_package">com.minimarket.mapper</a> &gt; <span class="el_source">EntityDtoMapper.java</span></div><h1>EntityDtoMapper.java</h1><pre class="source lang-java linenums">package com.minimarket.mapper;
+
+import com.minimarket.dto.CarritoDTO;
+import com.minimarket.dto.ProductoDTO;
+import com.minimarket.entity.Carrito;
+import com.minimarket.entity.Categoria;
+import com.minimarket.entity.Producto;
+import com.minimarket.entity.Usuario;
+
+public final class EntityDtoMapper {
+
+    private EntityDtoMapper() {
+    }
+
+    public static ProductoDTO toProductoDto(Producto producto) {
+<span class="fc" id="L16">        ProductoDTO dto = new ProductoDTO();</span>
+<span class="fc" id="L17">        dto.setId(producto.getId());</span>
+<span class="fc" id="L18">        dto.setNombre(producto.getNombre());</span>
+<span class="fc" id="L19">        dto.setPrecio(producto.getPrecio());</span>
+<span class="fc" id="L20">        dto.setStock(producto.getStock());</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        dto.setCategoriaId(producto.getCategoria() != null ? producto.getCategoria().getId() : null);</span>
+<span class="fc" id="L22">        return dto;</span>
+    }
+
+    public static Producto toProductoEntity(ProductoDTO dto, Categoria categoria) {
+<span class="fc" id="L26">        Producto producto = new Producto();</span>
+<span class="fc" id="L27">        producto.setId(dto.getId());</span>
+<span class="fc" id="L28">        producto.setNombre(dto.getNombre());</span>
+<span class="fc" id="L29">        producto.setPrecio(dto.getPrecio());</span>
+<span class="fc" id="L30">        producto.setStock(dto.getStock());</span>
+<span class="fc" id="L31">        producto.setCategoria(categoria);</span>
+<span class="fc" id="L32">        return producto;</span>
+    }
+
+    public static CarritoDTO toCarritoDto(Carrito carrito) {
+<span class="fc" id="L36">        CarritoDTO dto = new CarritoDTO();</span>
+<span class="fc" id="L37">        dto.setId(carrito.getId());</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        dto.setUsuarioId(carrito.getUsuario() != null ? carrito.getUsuario().getId() : null);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">        dto.setProductoId(carrito.getProducto() != null ? carrito.getProducto().getId() : null);</span>
+<span class="fc" id="L40">        dto.setCantidad(carrito.getCantidad());</span>
+<span class="fc" id="L41">        return dto;</span>
+    }
+
+    public static Carrito toCarritoEntity(CarritoDTO dto, Usuario usuario, Producto producto) {
+<span class="fc" id="L45">        Carrito carrito = new Carrito();</span>
+<span class="fc" id="L46">        carrito.setId(dto.getId());</span>
+<span class="fc" id="L47">        carrito.setUsuario(usuario);</span>
+<span class="fc" id="L48">        carrito.setProducto(producto);</span>
+<span class="fc" id="L49">        carrito.setCantidad(dto.getCantidad());</span>
+<span class="fc" id="L50">        return carrito;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

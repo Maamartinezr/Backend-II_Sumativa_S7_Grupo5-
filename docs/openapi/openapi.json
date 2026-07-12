@@ -1,0 +1,2524 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Minimarket API",
+    "description": "Contrato OpenAPI para la gestion de productos, carritos y recursos principales del minimarket.",
+    "contact": {
+      "name": "Maamartinezr",
+      "url": "https://github.com/Maamartinezr/Backend-II_Sumativa_S7_Grupo5-"
+    },
+    "license": {
+      "name": "Sin licencia definida",
+      "url": "https://github.com/Maamartinezr/Backend-II_Sumativa_S7_Grupo5-"
+    },
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9090",
+      "description": "Entorno local"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Endpoints de autenticación JWT"
+    },
+    {
+      "name": "Carrito",
+      "description": "Operaciones para administrar el carrito de compras"
+    },
+    {
+      "name": "Productos",
+      "description": "Operaciones para consultar, crear, actualizar y eliminar productos del minimarket"
+    }
+  ],
+  "paths": {
+    "/api/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "obtenerUsuarioPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "actualizarUsuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Usuario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "eliminarUsuario",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/productos/{id}": {
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Obtener producto por id",
+        "description": "Recupera el detalle de un producto por su identificador. Requiere autenticacion JWT.",
+        "operationId": "obtenerProductoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del producto",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Producto encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Producto"
+                },
+                "example": {
+                  "id": 1,
+                  "nombre": "Arroz integral",
+                  "precio": 1500.0,
+                  "stock": 20,
+                  "categoriaId": 1
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Producto no encontrado con id: 99",
+                  "path": "/api/productos/99"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Actualizar producto",
+        "description": "Actualiza un producto existente. Requiere rol ADMIN.",
+        "operationId": "actualizarProducto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del producto",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "description": "Datos del producto a actualizar",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Producto"
+              },
+              "example": {
+                "nombre": "Arroz integral",
+                "precio": 1500.0,
+                "stock": 20,
+                "categoriaId": 1
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Producto actualizado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Producto"
+                },
+                "example": {
+                  "id": 1,
+                  "nombre": "Arroz integral",
+                  "precio": 1500.0,
+                  "stock": 20,
+                  "categoriaId": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto o categoria no encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Producto no encontrado con id: 99",
+                  "path": "/api/productos/99"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Conflicto de datos: el recurso ya existe o viola restricciones",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Eliminar producto",
+        "description": "Elimina un producto existente. Requiere rol ADMIN.",
+        "operationId": "eliminarProducto",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del producto",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Producto eliminado correctamente"
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Producto no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Producto no encontrado con id: 99",
+                  "path": "/api/productos/99"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/inventario/{id}": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "obtenerMovimientoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inventario"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "actualizarMovimiento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Inventario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inventario"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "eliminarMovimiento",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/detalle-ventas/{id}": {
+      "get": {
+        "tags": [
+          "detalle-venta-controller"
+        ],
+        "operationId": "obtenerDetalleVentaPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalleVenta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "detalle-venta-controller"
+        ],
+        "operationId": "actualizarDetalleVenta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetalleVenta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalleVenta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "detalle-venta-controller"
+        ],
+        "operationId": "eliminarDetalleVenta",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/categorias/{id}": {
+      "get": {
+        "tags": [
+          "categoria-controller"
+        ],
+        "operationId": "obtenerCategoriaPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "categoria-controller"
+        ],
+        "operationId": "actualizarCategoria",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Categoria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "categoria-controller"
+        ],
+        "operationId": "eliminarCategoria",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/carrito/{id}": {
+      "get": {
+        "tags": [
+          "Carrito"
+        ],
+        "summary": "Obtener item del carrito por id",
+        "description": "Recupera un item del carrito por su identificador. Requiere autenticacion JWT.",
+        "operationId": "obtenerCarritoPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del item del carrito",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item del carrito encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrito"
+                },
+                "example": {
+                  "id": 1,
+                  "usuarioId": 1,
+                  "productoId": 1,
+                  "cantidad": 2
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item del carrito no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Carrito no encontrado con id: 99",
+                  "path": "/api/carrito/99"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Carrito"
+        ],
+        "summary": "Actualizar item del carrito",
+        "description": "Actualiza un item existente del carrito. Requiere autenticacion JWT.",
+        "operationId": "actualizarCarrito",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del item del carrito",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "description": "Datos actualizados del item de carrito",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Carrito"
+              },
+              "example": {
+                "usuarioId": 1,
+                "productoId": 1,
+                "cantidad": 2
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Item del carrito actualizado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrito"
+                },
+                "example": {
+                  "id": 1,
+                  "usuarioId": 1,
+                  "productoId": 1,
+                  "cantidad": 2
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item, usuario o producto no encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Carrito no encontrado con id: 99",
+                  "path": "/api/carrito/99"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Conflicto de datos: el recurso ya existe o viola restricciones",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Carrito"
+        ],
+        "summary": "Eliminar item del carrito",
+        "description": "Elimina un item existente del carrito. Requiere autenticacion JWT.",
+        "operationId": "eliminarProductoDelCarrito",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Identificador unico del item del carrito",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Item del carrito eliminado correctamente"
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Item del carrito no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Carrito no encontrado con id: 99",
+                  "path": "/api/carrito/99"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/ventas": {
+      "get": {
+        "tags": [
+          "venta-controller"
+        ],
+        "operationId": "listarVentas",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Venta"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "venta-controller"
+        ],
+        "operationId": "guardarVenta",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Venta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Venta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/usuarios": {
+      "get": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "listarUsuarios",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "usuario-controller"
+        ],
+        "operationId": "guardarUsuario",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Usuario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/productos": {
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Listar productos",
+        "description": "Obtiene una lista paginada de productos. Requiere autenticacion JWT.",
+        "operationId": "listarProductos",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado de productos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductoPageResponse"
+                },
+                "example": {
+                  "content": [
+                    {
+                      "id": 1,
+                      "nombre": "Arroz integral",
+                      "precio": 1500.0,
+                      "stock": 20,
+                      "categoriaId": 1
+                    }
+                  ],
+                  "number": 0,
+                  "size": 20,
+                  "totalElements": 1,
+                  "totalPages": 1,
+                  "first": true,
+                  "last": true,
+                  "empty": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Productos"
+        ],
+        "summary": "Crear producto",
+        "description": "Registra un nuevo producto. Requiere rol ADMIN.",
+        "operationId": "guardarProducto",
+        "requestBody": {
+          "description": "Datos del producto a crear",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Producto"
+              },
+              "example": {
+                "nombre": "Arroz integral",
+                "precio": 1500.0,
+                "stock": 20,
+                "categoriaId": 1
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Producto creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Producto"
+                },
+                "example": {
+                  "id": 1,
+                  "nombre": "Arroz integral",
+                  "precio": 1500.0,
+                  "stock": 20,
+                  "categoriaId": 1
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Categoria no encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Producto no encontrado con id: 99",
+                  "path": "/api/productos/99"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Conflicto de datos: el recurso ya existe o viola restricciones",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/inventario": {
+      "get": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "listarMovimientosDeInventario",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Inventario"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "inventario-controller"
+        ],
+        "operationId": "registrarMovimiento",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Inventario"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Inventario"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/detalle-ventas": {
+      "get": {
+        "tags": [
+          "detalle-venta-controller"
+        ],
+        "operationId": "listarDetalleVentas",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DetalleVenta"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "detalle-venta-controller"
+        ],
+        "operationId": "guardarDetalleVenta",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetalleVenta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalleVenta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categorias": {
+      "get": {
+        "tags": [
+          "categoria-controller"
+        ],
+        "operationId": "listarCategorias",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Categoria"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "categoria-controller"
+        ],
+        "operationId": "guardarCategoria",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Categoria"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Categoria"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/carrito": {
+      "get": {
+        "tags": [
+          "Carrito"
+        ],
+        "summary": "Listar carrito",
+        "description": "Obtiene un listado paginado de items registrados en el carrito. Requiere autenticacion JWT.",
+        "operationId": "listarCarrito",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado paginado del carrito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarritoPageResponse"
+                },
+                "example": {
+                  "content": [
+                    {
+                      "id": 1,
+                      "usuarioId": 1,
+                      "productoId": 1,
+                      "cantidad": 2
+                    }
+                  ],
+                  "number": 0,
+                  "size": 20,
+                  "totalElements": 1,
+                  "totalPages": 1,
+                  "first": true,
+                  "last": true,
+                  "empty": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Carrito"
+        ],
+        "summary": "Agregar producto al carrito",
+        "description": "Registra un nuevo item de carrito. Requiere autenticacion JWT.",
+        "operationId": "agregarProductoAlCarrito",
+        "requestBody": {
+          "description": "Datos del item de carrito a registrar",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Carrito"
+              },
+              "example": {
+                "usuarioId": 1,
+                "productoId": 1,
+                "cantidad": 2
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Item del carrito creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Carrito"
+                },
+                "example": {
+                  "id": 1,
+                  "usuarioId": 1,
+                  "productoId": 1,
+                  "cantidad": 2
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud invalida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "La solicitud contiene datos invalidos",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 401,
+                  "error": "Unauthorized",
+                  "message": "Full authentication is required to access this resource",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acceso denegado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "Access Denied",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuario o producto no encontrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Carrito no encontrado con id: 99",
+                  "path": "/api/carrito/99"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflicto de datos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Conflicto de datos: el recurso ya existe o viola restricciones",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "timestamp": "2026-07-06T04:12:49.271Z",
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "Ha ocurrido un error inesperado",
+                  "path": "/api/productos"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Iniciar sesión",
+        "description": "Autentica credenciales y retorna un token JWT.",
+        "operationId": "login",
+        "requestBody": {
+          "description": "Credenciales de acceso",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "username": "admin",
+                "password": "Admin123*"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticación exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                },
+                "example": {
+                  "token": "jwt-token-ejemplo",
+                  "tokenType": "Bearer",
+                  "expiresIn": 3600000
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales inválidas",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/public/hola": {
+      "get": {
+        "tags": [
+          "hola-mundo-controller"
+        ],
+        "operationId": "holaMundo",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ventas/{id}": {
+      "get": {
+        "tags": [
+          "venta-controller"
+        ],
+        "operationId": "obtenerVentaPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Venta"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Rol": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Usuario"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "username": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "apellido": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "direccion": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rol"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "Producto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Arroz integral"
+          },
+          "precio": {
+            "type": "number",
+            "format": "double",
+            "example": 1500.0
+          },
+          "stock": {
+            "type": "integer",
+            "format": "int32",
+            "example": 20
+          },
+          "categoriaId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          }
+        },
+        "required": [
+          "categoriaId",
+          "nombre",
+          "precio",
+          "stock"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-07-06T04:12:49.271Z"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "message": {
+            "type": "string",
+            "example": "La solicitud contiene datos invalidos"
+          },
+          "path": {
+            "type": "string",
+            "example": "/api/productos"
+          },
+          "validationErrors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Categoria": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Producto"
+            }
+          }
+        }
+      },
+      "Inventario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "producto": {
+            "$ref": "#/components/schemas/Producto"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipoMovimiento": {
+            "type": "string"
+          },
+          "fechaMovimiento": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "DetalleVenta": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "venta": {
+            "$ref": "#/components/schemas/Venta"
+          },
+          "producto": {
+            "$ref": "#/components/schemas/Producto"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "precio": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Venta": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetalleVenta"
+            }
+          }
+        }
+      },
+      "Carrito": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "usuarioId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32",
+            "example": 2
+          }
+        },
+        "required": [
+          "cantidad",
+          "productoId",
+          "usuarioId"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Nombre de usuario registrado",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "description": "Contraseña del usuario",
+            "example": "Admin123*"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "description": "Respuesta de autenticación con token JWT",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token JWT de acceso"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "Tipo de token",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Tiempo de expiración en milisegundos",
+            "example": 3600000
+          }
+        }
+      },
+      "ProductoPageResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Producto"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CarritoPageResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Carrito"
+            }
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "first": {
+            "type": "boolean"
+          },
+          "last": {
+            "type": "boolean"
+          },
+          "empty": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

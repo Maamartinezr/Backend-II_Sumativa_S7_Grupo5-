@@ -2,6 +2,7 @@ package com.minimarket.exception;
 
 import com.minimarket.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +14,10 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.minimarket.util.ApiErrorMessages.DATA_CONFLICT;
+import static com.minimarket.util.ApiErrorMessages.UNEXPECTED_ERROR;
+import static com.minimarket.util.ApiErrorMessages.VALIDATION_INVALID_DATA;
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
@@ -23,7 +28,7 @@ public class ApiExceptionHandler {
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             validationErrors.put(error.getField(), error.getDefaultMessage());
         }
-        return buildResponse(HttpStatus.BAD_REQUEST, "La solicitud contiene datos invalidos", request, validationErrors);
+        return buildResponse(HttpStatus.BAD_REQUEST, VALIDATION_INVALID_DATA, request, validationErrors);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -38,10 +43,15 @@ public class ApiExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDataIntegrityViolation(HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, DATA_CONFLICT, request, null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGeneric(Exception ex,
                                                           HttpServletRequest request) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ha ocurrido un error inesperado", request, null);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR, request, null);
     }
 
     private ResponseEntity<ErrorResponseDTO> buildResponse(HttpStatus status,
