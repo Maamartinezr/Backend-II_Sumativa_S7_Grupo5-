@@ -34,6 +34,8 @@ Su objetivo es exponer servicios para la gestión de entidades principales del n
 - **Mockito**
 - **Maven**
 - **Jenkins**
+- **OpenAPI**
+- **HATE OAS**
 
 ---
 
