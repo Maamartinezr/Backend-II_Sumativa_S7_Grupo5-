@@ -1,8 +1,8 @@
 package com.minimarket.controller;
 
+import com.minimarket.assembler.CarritoModelAssembler;
 import com.minimarket.dto.CarritoDTO;
 import com.minimarket.dto.ErrorResponseDTO;
-import com.minimarket.dto.PageResponse;
 import com.minimarket.dto.page.CarritoPageResponse;
 import com.minimarket.entity.Carrito;
 import com.minimarket.entity.Producto;
@@ -30,6 +30,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,6 +50,8 @@ import static com.minimarket.util.OpenApiExamples.ERROR_403;
 import static com.minimarket.util.OpenApiExamples.ERROR_404_CARRITO;
 import static com.minimarket.util.OpenApiExamples.ERROR_409;
 import static com.minimarket.util.OpenApiExamples.ERROR_500;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/carrito")
@@ -64,6 +68,9 @@ public class CarritoController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private CarritoModelAssembler carritoModelAssembler;
+
     @Operation(
             summary = "Listar carrito",
             description = "Obtiene un listado paginado de items registrados en el carrito. Requiere autenticacion JWT."
@@ -71,7 +78,7 @@ public class CarritoController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado paginado del carrito",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = CarritoPageResponse.class),
+                            schema = @Schema(implementation = CollectionModel.class),
                             examples = @ExampleObject(value = CARRITO_PAGE))),
             @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -91,9 +98,13 @@ public class CarritoController {
                             examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping
-    public ResponseEntity<PageResponse<CarritoDTO>> listarCarrito(@ParameterObject Pageable pageable) {
+    public ResponseEntity<CollectionModel<EntityModel<CarritoDTO>>> listarCarrito(@ParameterObject Pageable pageable) {
         Page<CarritoDTO> carritos = carritoService.findAll(pageable).map(EntityDtoMapper::toCarritoDto);
-        return ResponseEntity.ok(PageResponse.from(carritos));
+        CollectionModel<EntityModel<CarritoDTO>> collectionModel = CollectionModel.of(
+                carritos.map(carritoModelAssembler::toModel).toList(),
+                linkTo(methodOn(CarritoController.class).listarCarrito(pageable)).withSelfRel()
+        );
+        return ResponseEntity.ok(collectionModel);
     }
 
     @Operation(
@@ -103,7 +114,7 @@ public class CarritoController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Item del carrito encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = CarritoDTO.class),
+                            schema = @Schema(implementation = EntityModel.class),
                             examples = @ExampleObject(value = CARRITO_RESPONSE))),
             @ApiResponse(responseCode = "401", description = "No autenticado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -123,10 +134,10 @@ public class CarritoController {
                             examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<CarritoDTO> obtenerCarritoPorId(
+    public ResponseEntity<EntityModel<CarritoDTO>> obtenerCarritoPorId(
             @Parameter(in = ParameterIn.PATH, description = "Identificador unico del item del carrito", example = "1")
             @PathVariable Long id) {
-        return ResponseEntity.ok(EntityDtoMapper.toCarritoDto(obtenerCarrito(id)));
+        return ResponseEntity.ok(carritoModelAssembler.toModel(EntityDtoMapper.toCarritoDto(obtenerCarrito(id))));
     }
 
     @Operation(

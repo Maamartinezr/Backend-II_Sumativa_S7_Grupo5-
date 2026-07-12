@@ -2,6 +2,7 @@
 
 import com.minimarket.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,49 +14,58 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.minimarket.util.ApiErrorMessages.DATA_CONFLICT;
+import static com.minimarket.util.ApiErrorMessages.UNEXPECTED_ERROR;
+import static com.minimarket.util.ApiErrorMessages.VALIDATION_INVALID_DATA;
+
 @RestControllerAdvice
-<span class="fc" id="L17">public class ApiExceptionHandler {</span>
+<span class="fc" id="L22">public class ApiExceptionHandler {</span>
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity&lt;ErrorResponseDTO&gt; handleValidation(MethodArgumentNotValidException ex,
                                                              HttpServletRequest request) {
-<span class="fc" id="L22">        Map&lt;String, String&gt; validationErrors = new LinkedHashMap&lt;&gt;();</span>
-<span class="fc bfc" id="L23" title="All 2 branches covered.">        for (FieldError error : ex.getBindingResult().getFieldErrors()) {</span>
-<span class="fc" id="L24">            validationErrors.put(error.getField(), error.getDefaultMessage());</span>
-<span class="fc" id="L25">        }</span>
-<span class="fc" id="L26">        return buildResponse(HttpStatus.BAD_REQUEST, &quot;La solicitud contiene datos invalidos&quot;, request, validationErrors);</span>
+<span class="fc" id="L27">        Map&lt;String, String&gt; validationErrors = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        for (FieldError error : ex.getBindingResult().getFieldErrors()) {</span>
+<span class="fc" id="L29">            validationErrors.put(error.getField(), error.getDefaultMessage());</span>
+<span class="fc" id="L30">        }</span>
+<span class="fc" id="L31">        return buildResponse(HttpStatus.BAD_REQUEST, VALIDATION_INVALID_DATA, request, validationErrors);</span>
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity&lt;ErrorResponseDTO&gt; handleNotFound(ResourceNotFoundException ex,
                                                            HttpServletRequest request) {
-<span class="fc" id="L32">        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);</span>
+<span class="fc" id="L37">        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request, null);</span>
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity&lt;ErrorResponseDTO&gt; handleIllegalArgument(IllegalArgumentException ex,
                                                                   HttpServletRequest request) {
-<span class="nc" id="L38">        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);</span>
+<span class="nc" id="L43">        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);</span>
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;ErrorResponseDTO&gt; handleDataIntegrityViolation(HttpServletRequest request) {
+<span class="nc" id="L48">        return buildResponse(HttpStatus.CONFLICT, DATA_CONFLICT, request, null);</span>
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity&lt;ErrorResponseDTO&gt; handleGeneric(Exception ex,
                                                           HttpServletRequest request) {
-<span class="nc" id="L44">        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, &quot;Ha ocurrido un error inesperado&quot;, request, null);</span>
+<span class="nc" id="L54">        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, UNEXPECTED_ERROR, request, null);</span>
     }
 
     private ResponseEntity&lt;ErrorResponseDTO&gt; buildResponse(HttpStatus status,
                                                            String message,
                                                            HttpServletRequest request,
                                                            Map&lt;String, String&gt; validationErrors) {
-<span class="fc" id="L51">        ErrorResponseDTO response = new ErrorResponseDTO();</span>
-<span class="fc" id="L52">        response.setTimestamp(Instant.now());</span>
-<span class="fc" id="L53">        response.setStatus(status.value());</span>
-<span class="fc" id="L54">        response.setError(status.getReasonPhrase());</span>
-<span class="fc" id="L55">        response.setMessage(message);</span>
-<span class="fc" id="L56">        response.setPath(request.getRequestURI());</span>
-<span class="fc" id="L57">        response.setValidationErrors(validationErrors);</span>
-<span class="fc" id="L58">        return ResponseEntity.status(status).body(response);</span>
+<span class="fc" id="L61">        ErrorResponseDTO response = new ErrorResponseDTO();</span>
+<span class="fc" id="L62">        response.setTimestamp(Instant.now());</span>
+<span class="fc" id="L63">        response.setStatus(status.value());</span>
+<span class="fc" id="L64">        response.setError(status.getReasonPhrase());</span>
+<span class="fc" id="L65">        response.setMessage(message);</span>
+<span class="fc" id="L66">        response.setPath(request.getRequestURI());</span>
+<span class="fc" id="L67">        response.setValidationErrors(validationErrors);</span>
+<span class="fc" id="L68">        return ResponseEntity.status(status).body(response);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

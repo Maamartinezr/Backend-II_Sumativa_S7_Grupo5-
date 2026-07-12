@@ -1,7 +1,7 @@
 package com.minimarket.controller;
 
+import com.minimarket.assembler.ProductoModelAssembler;
 import com.minimarket.dto.ErrorResponseDTO;
-import com.minimarket.dto.PageResponse;
 import com.minimarket.dto.ProductoDTO;
 import com.minimarket.dto.page.ProductoPageResponse;
 import com.minimarket.entity.Categoria;
@@ -28,6 +28,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +48,8 @@ import static com.minimarket.util.OpenApiExamples.ERROR_500;
 import static com.minimarket.util.OpenApiExamples.PRODUCTO_PAGE;
 import static com.minimarket.util.OpenApiExamples.PRODUCTO_REQUEST;
 import static com.minimarket.util.OpenApiExamples.PRODUCTO_RESPONSE;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -59,6 +63,9 @@ public class ProductoController {
     @Autowired
     private CategoriaService categoriaService;
 
+    @Autowired
+    private ProductoModelAssembler productoModelAssembler;
+
     @Operation(
             summary = "Listar productos",
             description = "Obtiene una lista paginada de productos. Requiere autenticacion JWT."
@@ -66,7 +73,7 @@ public class ProductoController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado paginado de productos",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ProductoPageResponse.class),
+                            schema = @Schema(implementation = CollectionModel.class),
                             examples = @ExampleObject(value = PRODUCTO_PAGE))),
             @ApiResponse(responseCode = "400", description = "Solicitud invalida",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -86,9 +93,13 @@ public class ProductoController {
                             examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping
-    public ResponseEntity<PageResponse<ProductoDTO>> listarProductos(@ParameterObject Pageable pageable) {
+    public ResponseEntity<CollectionModel<EntityModel<ProductoDTO>>> listarProductos(@ParameterObject Pageable pageable) {
         Page<ProductoDTO> productos = productoService.findAll(pageable).map(EntityDtoMapper::toProductoDto);
-        return ResponseEntity.ok(PageResponse.from(productos));
+        CollectionModel<EntityModel<ProductoDTO>> collectionModel = CollectionModel.of(
+                productos.map(productoModelAssembler::toModel).toList(),
+                linkTo(methodOn(ProductoController.class).listarProductos(pageable)).withSelfRel()
+        );
+        return ResponseEntity.ok(collectionModel);
     }
 
     @Operation(
@@ -98,7 +109,7 @@ public class ProductoController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Producto encontrado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = ProductoDTO.class),
+                            schema = @Schema(implementation = EntityModel.class),
                             examples = @ExampleObject(value = PRODUCTO_RESPONSE))),
             @ApiResponse(responseCode = "401", description = "No autenticado",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -118,10 +129,10 @@ public class ProductoController {
                             examples = @ExampleObject(value = ERROR_500)))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ProductoDTO> obtenerProductoPorId(
+    public ResponseEntity<EntityModel<ProductoDTO>> obtenerProductoPorId(
             @Parameter(in = ParameterIn.PATH, description = "Identificador unico del producto", example = "1")
             @PathVariable Long id) {
-        return ResponseEntity.ok(EntityDtoMapper.toProductoDto(obtenerProducto(id)));
+        return ResponseEntity.ok(productoModelAssembler.toModel(EntityDtoMapper.toProductoDto(obtenerProducto(id))));
     }
 
     @Operation(

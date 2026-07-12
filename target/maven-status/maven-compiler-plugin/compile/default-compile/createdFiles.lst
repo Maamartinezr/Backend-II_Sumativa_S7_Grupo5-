@@ -1,3 +1,4 @@
+com/minimarket/util/ApiErrorMessages.class
 com/minimarket/dto/CategoriaDTO.class
 com/minimarket/repository/CarritoRepository.class
 com/minimarket/service/impl/ProductoServiceImpl.class
@@ -64,3 +65,4 @@ com/minimarket/entity/DetalleVenta.class
 com/minimarket/dto/DetalleVentaDTO.class
 com/minimarket/MinimarketApplication.class
 com/minimarket/entity/Usuario.class
+com/minimarket/util/OpenApiExamples.class

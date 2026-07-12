@@ -169,6 +169,32 @@ Este proyecto usa **springdoc-openapi** para generar documentación automática 
 - OpenAPI en ejecución: `http://localhost:9090/v3/api-docs`
 - OpenAPI versionado en repositorio: `/docs/openapi/openapi.json`
 
+### Respuestas HATEOAS en endpoints principales
+
+Los endpoints clave de **Producto, Carrito, Inventario y Usuario** ahora incluyen enlaces dinámicos HATEOAS (`_links`) en respuestas de detalle (`EntityModel`) y listado (`CollectionModel`).
+
+Verificación rápida en Swagger UI o Postman:
+- `GET /api/productos/{id}`
+- `GET /api/productos`
+- `GET /api/carrito/{id}`
+- `GET /api/carrito`
+- `GET /api/inventario/{id}`
+- `GET /api/inventario`
+- `GET /api/usuarios/{id}`
+- `GET /api/usuarios`
+
+Ejemplo breve de respuesta:
+```json
+{
+  "id": 1,
+  "nombre": "Arroz 1",
+  "_links": {
+    "self": { "href": "http://localhost:9090/api/productos/1" },
+    "collection": { "href": "http://localhost:9090/api/productos" }
+  }
+}
+```
+
 ### Regenerar contrato OpenAPI (`openapi.json`)
 
 1. Levantar la aplicación:
